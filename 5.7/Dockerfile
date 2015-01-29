@@ -5,6 +5,9 @@ ADD https://raw.githubusercontent.com/caleb/mo/master/mo /usr/local/bin/mo
 # Install modules
 RUN chmod +x /usr/local/bin/mo
 
-COPY docker-entrypoint.sh /setup.sh
+COPY helpers /helpers
+COPY docker-entrypoint.sh /entrypoint.sh
 
-CMD ["/setup.sh", "mysqld"]
+ENTRYPOINT ["/entrypoint.sh"]
+
+CMD ["mysqld"]
