@@ -16,12 +16,12 @@ for import_var in ${!MYSQL_IMPORT_*}; do
     if [ "${file}" = "-" ]; then
       echo "Importing stdin into \"${database}\"" >&2
 
-      echo "USE ${database};" >> "$tempSqlFile"
+      echo "USE \`${database}\`;" >> "$tempSqlFile"
       cat >> "$tempSqlFile"
     elif [ -f "${file}" -a "${database}" ]; then
       echo "Importing \"${file}\" into \"${database}\"..." >&2
 
-      echo "USE ${database};" >> "$tempSqlFile"
+      echo "USE \`${database}\`;" >> "$tempSqlFile"
       cat "${file}" >> "$tempSqlFile"
     fi
   fi

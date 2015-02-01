@@ -16,12 +16,23 @@ for database_var in ${!MYSQL_DATABASE_*}; do
   fi
 done
 
+if [ ${#databases} -eq 0 ]; then
+  # read the databases from mysql since the user didn't specify any
+  out=$(mysql -s --skip-column-names -e 'show databases;')
+  for database in $out; do
+    if [ "${database}" != "mysql" ] \
+         && [ "${database}" != "performance_schema" ]  \
+         && [ "${database}" != "information_schema" ]; then
+      databases+=($database)
+    fi
+  done
+fi
+
 if [ ${#databases} -gt 0 ]; then
   if [ ! -d "${output}" ] || [ "$output" = "-" ] || [ -z "$output" ]; then
-
     echo "Dumping databases ${databases[@]}..." >&2
 
-    if [ "${outout}" = "-" ] || [ -z "$output" ]; then
+    if [ "${output}" = "-" ] || [ -z "$output" ]; then
       mysqldump --databases "${databases[@]}"
     else
       mysqldump --databases "${databases[@]}" > "${output}"

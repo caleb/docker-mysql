@@ -12,5 +12,5 @@ if [ ! "${MYSQL_DATABASE}" ]; then
   exit 1
 fi
 
-echo "USE ${MYSQL_DATABASE};" >> "${tempSqlFile}"
+echo "USE \`${MYSQL_DATABASE}\`;" >> "${tempSqlFile}"
 cat "${input}" >> "${tempSqlFile}"
