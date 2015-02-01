@@ -1,17 +1,23 @@
 #!/usr/bin/env bash
 shopt -s globstar
 
-if [ ! "${MYSQL_NAME}" ]; then
-  echo "You must link your mysql container to this container as \"mysql\"" >&2
+# Find the mysql container
+MYSQL_CONTAINER_NAME=$(perl -e 'foreach (sort keys %ENV) { print $1 if $_ =~ /(.*)_ENV_MYSQL_ROOT_PASSWORD/; }' 2>/dev/null)
+MYSQL_HOST_NAME=${MYSQL_CONTAINER_NAME,,}
+MYSQL_ROOT_PASSWORD_VAR="${MYSQL_CONTAINER_NAME}_ENV_MYSQL_ROOT_PASSWORD"
+MYSQL_ROOT_PASSWORD="${!MYSQL_ROOT_PASSWORD_VAR}"
+
+if [ ! "${MYSQL_HOST_NAME}" ]; then
+  echo "You must link your mysql container to this container." >&2
   exit 1
 fi
 
 # Log in to mysql
 cat > ~/.my.cnf <<EOF
 [client]
-host=mysql
+host=${MYSQL_HOST_NAME}
 user=root
-password="${MYSQL_ENV_MYSQL_ROOT_PASSWORD}"
+password="${MYSQL_ROOT_PASSWORD}"
 EOF
 
 # wait for mysql server to start (max 30 seconds)
