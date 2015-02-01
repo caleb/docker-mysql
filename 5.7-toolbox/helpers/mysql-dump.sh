@@ -18,7 +18,7 @@ done
 
 if [ ${#databases} -eq 0 ]; then
   # read the databases from mysql since the user didn't specify any
-  out=$(mysql -s --skip-column-names -e 'show databases;')
+  out=$(mysql -s --skip-column-names -e 'show databases;' 2> /dev/null)
   for database in $out; do
     if [ "${database}" != "mysql" ] \
          && [ "${database}" != "performance_schema" ]  \
