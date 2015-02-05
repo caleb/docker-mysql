@@ -30,7 +30,7 @@ do
     exit 1
   fi
 
-  if [ $timeout -eq 5 ]; then
+  if [ $timeout -eq 25 ]; then
     echo "Waiting for database server to accept connections..." >&2
   fi
 
