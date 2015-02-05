@@ -2,7 +2,7 @@
 shopt -s globstar
 
 # Find the mysql container
-MYSQL_CONTAINER_NAME=$(perl -e 'foreach (sort keys %ENV) { print $1 if $_ =~ /(.*)_ENV_MYSQL_ROOT_PASSWORD/; }' 2>/dev/null)
+MYSQL_CONTAINER_NAME=$(perl -e 'foreach (sort keys %ENV) { if ($_ =~ /(.*)_ENV_MYSQL_ROOT_PASSWORD/) { print $1; exit 0; } }' 2>/dev/null)
 MYSQL_HOST_NAME=${MYSQL_CONTAINER_NAME,,}
 MYSQL_ROOT_PASSWORD_VAR="${MYSQL_CONTAINER_NAME}_ENV_MYSQL_ROOT_PASSWORD"
 MYSQL_ROOT_PASSWORD="${!MYSQL_ROOT_PASSWORD_VAR}"
@@ -34,7 +34,10 @@ do
     echo "Waiting for database server to accept connections..." >&2
   fi
 
-  echo -n "." >&2
+  if [ $timeout -lt 25 ]; then
+    echo -n "." >&2
+  fi
+
   sleep 1
 done
 
