@@ -78,9 +78,9 @@ case "${1}" in
 
       # escape the wildcard characters in the database name
       database_name_escaped=${database_name//_/\\_};
-      database_name_escaped=${database_name_escaped//*/\\*};
+      database_name_escaped=${database_name_escaped//\*/\\*};
       database_name_escaped=${database_name_escaped//%/\\%};
-      database_name_escaped=${database_name_escaped//?/\\?};
+      database_name_escaped=${database_name_escaped//\?/\\?};
 
       if mysqlshow "${database_name_escaped}" > /dev/null 2>&1; then
         echo "Skipping initialization for database \"${database_name}\", database already exists" >&2
