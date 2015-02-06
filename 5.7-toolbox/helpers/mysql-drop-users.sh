@@ -14,6 +14,7 @@ for user_var in ${!MYSQL_USER_*}; do
     echo "Dropping user \"${user_name}\"..." >&2
 
     if [ "$user_name" ]; then
+      echo "GRANT USAGE ON *.* TO \`$user_name\` ;" >> "$tempSqlFile"
       echo "DROP USER \`$user_name\` ;" >> "$tempSqlFile"
     fi
   fi
