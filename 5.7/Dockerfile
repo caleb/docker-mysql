@@ -7,5 +7,3 @@ RUN chmod +x /usr/local/bin/mo \
 
 COPY helpers /helpers
 COPY docker-entrypoint.sh /entrypoint.sh
-
-CMD ["/entrypoint.sh", "mysqld"]
