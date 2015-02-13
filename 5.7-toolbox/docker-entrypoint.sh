@@ -150,6 +150,7 @@ case "${1}" in
 
     ;;
   *)
+    # Don't require a mysql link when running arbitrary commands
     initialize false
 
     exec "$@"
