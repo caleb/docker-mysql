@@ -1,56 +1,57 @@
 #!/usr/bin/env bash
 shopt -s globstar
 
-# Find the mysql container
-MYSQL_CONTAINER_NAME=$(perl -e 'foreach (sort keys %ENV) { if ($_ =~ /(.*)_ENV_MYSQL_ROOT_PASSWORD/) { print $1; exit 0; } }' 2>/dev/null)
-MYSQL_HOST_NAME=${MYSQL_CONTAINER_NAME,,}
-MYSQL_ROOT_PASSWORD_VAR="${MYSQL_CONTAINER_NAME}_ENV_MYSQL_ROOT_PASSWORD"
-MYSQL_ROOT_PASSWORD="${!MYSQL_ROOT_PASSWORD_VAR}"
+. /helpers/links.sh
 
-if [ ! "${MYSQL_HOST_NAME}" ]; then
-  echo "You must link your mysql container to this container." >&2
-  exit 1
-fi
+function initialize() {
+  require_mysql=${1:-true}
 
-# Log in to mysql
-cat > ~/.my.cnf <<EOF
+  read_link MYSQL mysql 3306 tcp $require_mysql
+
+  # If we found the container, write our credentials to the ~/.my.cnf file and wait to connect
+  if [ -n "${MYSQL_ADDR}" ] && [ -n "${MYSQL_ENV_MYSQL_ROOT_PASSWORD}" ]; then
+    # Log in to mysql
+    cat > ~/.my.cnf <<EOF
 [client]
-host=${MYSQL_HOST_NAME}
+host=${MYSQL_ADDR}
 user=root
-password="${MYSQL_ROOT_PASSWORD}"
+password="${MYSQL_ENV_MYSQL_ROOT_PASSWORD}"
 EOF
 
-# wait for mysql server to start (max 30 seconds)
-timeout=30
-while ! mysqladmin status >/dev/null 2>&1
-do
-  timeout=$(($timeout - 1))
-  if [ $timeout -eq 0 ]; then
-    echo -e "\nCould not connect to database server. Aborting..." >&2
-    exit 1
+    # wait for mysql server to start (max 30 seconds)
+    timeout=30
+    while ! mysqladmin status >/dev/null 2>&1
+    do
+      timeout=$(($timeout - 1))
+      if [ $timeout -eq 0 ]; then
+        echo -e "\nCould not connect to database server. Aborting..." >&2
+        exit 1
+      fi
+
+      if [ $timeout -eq 25 ]; then
+        echo "Waiting for database server to accept connections..." >&2
+      fi
+
+      if [ $timeout -lt 25 ]; then
+        echo -n "." >&2
+      fi
+
+      sleep 1
+    done
   fi
-
-  if [ $timeout -eq 25 ]; then
-    echo "Waiting for database server to accept connections..." >&2
-  fi
-
-  if [ $timeout -lt 25 ]; then
-    echo -n "." >&2
-  fi
-
-  sleep 1
-done
-
-#
-# Set up some common environment variables
-#
-[ "${MYSQL_DATABASE}" ] && export MYSQL_DATABASE_DEFAULT="${MYSQL_DATABASE}"
-[ "${MYSQL_USER}" ] && export MYSQL_USER_DEFAULT="${MYSQL_USER}"
-[ "${MYSQL_IMPORT}" ] && export MYSQL_IMPORT_DEFAULT="${MYSQL_IMPORT}"
+  #
+  # Set up some common environment variables
+  #
+  [ "${MYSQL_DATABASE}" ] && export MYSQL_DATABASE__DEFAULT__="${MYSQL_DATABASE}"
+  [ "${MYSQL_USER}" ]     && export MYSQL_USER__DEFAULT__="${MYSQL_USER}"
+  [ "${MYSQL_IMPORT}" ]   && export MYSQL_IMPORT__DEFAULT__="${MYSQL_IMPORT}"
+}
 
 case "${1}" in
   # Initializes a database by creating users and databases
   initialize)
+    initialize
+
     sqlFile=/tmp/initialize.sql
 
     # Remove user declarations that already exist
@@ -118,6 +119,8 @@ case "${1}" in
     ;;
 
   reinitialize)
+    initialize
+
     sqlFile=/tmp/reinitialize.sql
 
     # Build our commands to initialize this database cluster
@@ -132,6 +135,8 @@ case "${1}" in
     ;;
 
   run)
+    initialize
+
     sqlFile=/tmp/run.sql
     /helpers/mysql-run.sh "${sqlFile}" "${2}"
 
@@ -139,10 +144,14 @@ case "${1}" in
     ;;
 
   dump)
+    initialize
+
     /helpers/mysql-dump.sh "${2}"
 
     ;;
   *)
+    initialize false
+
     exec "$@"
     ;;
 esac
