@@ -1,9 +1,19 @@
 FROM mysql:5.7
 
-ADD https://raw.githubusercontent.com/caleb/mo/master/mo /usr/local/bin/mo
+MAINTAINER Caleb Land <caleb@land.fm>
 
-RUN chmod +x /usr/local/bin/mo \
- && mv /entrypoint.sh /base-entrypoint.sh
+ENV DOCKER_HELPERS_VERSION=1.0
 
-COPY helpers /helpers
+# Download our docker helpers
+ADD https://github.com/caleb/docker-helpers/releases/download/v${DOCKER_HELPERS_VERSION}/helpers-v${DOCKER_HELPERS_VERSION}.tar.gz /tmp/helpers.tar.gz
+
+# Install the docker helpers
+RUN mkdir -p /helpers \
+&&  tar xzf /tmp/helpers.tar.gz -C / \
+&&  rm /tmp/helpers.tar.gz
+
+# Install the base system
+RUN /bin/bash /helpers/install-base.sh
+
+RUN mv /entrypoint.sh /base-entrypoint.sh
 COPY docker-entrypoint.sh /entrypoint.sh
