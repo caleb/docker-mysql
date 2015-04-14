@@ -1,3 +1,5 @@
 #!/usr/bin/env bash
 
-docker build -t docker.rodeopartners.com/mysql:5.7-toolbox .
+NO_CACHE="${1:-false}"
+
+docker build --no-cache=$NO_CACHE -t docker.rodeopartners.com/mysql:5.7-toolbox .
