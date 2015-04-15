@@ -14,7 +14,7 @@ for database_var in ${!MYSQL_DATABASE_*}; do
 
     # if an owner isn't specified use MYSQL_USER
     if [ ${#database_owner} -eq ${#database} ]; then
-      database_owner=${MYSQL_USER}
+      database_owner="${MYSQL_USER%%:*}"
     fi
 
     echo "Creating database \"${database_name}\" owned by \"${database_owner:-root}\"..." >&2
