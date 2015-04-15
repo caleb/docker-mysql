@@ -4,6 +4,14 @@ output="${1}"
 
 databases=()
 
+# Prints a message to the console. Doesn't print anything if we are outputting
+# the dump to stdout
+function message() {
+  if [ "${output}" != "-" ] && [ ! -z "$output" ]; then
+    echo "${1}" >&2
+  fi
+}
+
 for database_var in ${!MYSQL_DATABASE_*}; do
   database="${!database_var}"
 
@@ -30,7 +38,7 @@ fi
 
 if [ ${#databases} -gt 0 ]; then
   if [ ! -d "${output}" ] || [ "$output" = "-" ] || [ -z "$output" ]; then
-    echo "Dumping databases ${databases[@]}..." >&2
+    message "Dumping databases ${databases[@]}..."
 
     if [ "${output}" = "-" ] || [ -z "$output" ]; then
       mysqldump --databases "${databases[@]}"
@@ -40,7 +48,7 @@ if [ ${#databases} -gt 0 ]; then
   else
     # We are dumping to a directory, make one file for each database
     for database in "${databases[@]}"; do
-      echo "Dumping database \"${database}\"..." >&2
+      message "Dumping database \"${database}\"..."
 
       if [ "$database" ]; then
         dest="${output}/${database}.sql"
