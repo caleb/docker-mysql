@@ -6,7 +6,7 @@ shopt -s globstar
 function initialize() {
   require_mysql=${1:-true}
 
-  read_link MYSQL mysql 3306 tcp $require_mysql
+  read-link MYSQL mysql 3306 tcp $require_mysql
 
   # If we found the container, write our credentials to the ~/.my.cnf file and wait to connect
   if [ -n "${MYSQL_ADDR}" ] && [ -n "${MYSQL_ENV_MYSQL_ROOT_PASSWORD}" ]; then
