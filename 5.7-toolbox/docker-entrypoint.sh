@@ -109,6 +109,9 @@ case "${1}" in
       fi
     done
 
+    # Flush before initializing
+    echo 'FLUSH PRIVILEGES;' > "$sqlFile"
+
     # Build our commands to initialize this database cluster
     /helpers/mysql-create-users.sh "${sqlFile}"
     /helpers/mysql-create-databases.sh "${sqlFile}"
@@ -122,6 +125,9 @@ case "${1}" in
     initialize
 
     sqlFile=/tmp/reinitialize.sql
+
+    # Flush before initializing
+    echo 'FLUSH PRIVILEGES;' > "$sqlFile"
 
     # Build our commands to initialize this database cluster
     /helpers/mysql-drop-users.sh "${sqlFile}"
