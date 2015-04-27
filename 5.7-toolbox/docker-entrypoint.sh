@@ -54,28 +54,13 @@ case "${1}" in
 
     sqlFile=/tmp/initialize.sql
 
-    # Remove user declarations that already exist
-    for user_var in ${!MYSQL_USER_*}; do
-      user="${!user_var}"
-      username="${user%%:*}"
-
-      count=$(mysql -s -e "SELECT COUNT(*) FROM mysql.user WHERE User='${username}';" --skip-column-names 2> /dev/null)
-
-      if [ $count -gt 0 ]; then
-        echo "User \"${username}\" already exists..." >&2
-        unset "${user_var}"
-      fi
-    done
+    # Flush before initializing
+    echo 'FLUSH PRIVILEGES;' > "$sqlFile"
 
     # Remove database declarations of databases that already exist
     for database_var in ${!MYSQL_DATABASE_*}; do
       database="${!database_var}"
       database_name="${database%%:*}"
-      database_user="${database#*:}"
-
-      if [ "${#database_user}" -eq "${#database}" ]; then
-        database_user="${MYSQL_USER:-root}"
-      fi
 
       # escape the wildcard characters in the database name
       database_name_escaped=${database_name//_/\\_};
@@ -84,9 +69,6 @@ case "${1}" in
       database_name_escaped=${database_name_escaped//\?/\\?};
 
       if mysqlshow "${database_name_escaped}" > /dev/null 2>&1; then
-        echo "Skipping initialization for database \"${database_name}\", database already exists" >&2
-        unset "${database_var}"
-
         # Remove imports for databases that already exist
         for import_var in ${!MYSQL_IMPORT_*}; do
           import="${!import_var}"
@@ -103,14 +85,12 @@ case "${1}" in
           fi
 
           if [ "${import_database}" = "${database_name}" ]; then
+            echo "Skipping initialization for database \"${database_name}\", database already exists" >&2
             unset "${import_var}"
           fi
         done
       fi
     done
-
-    # Flush before initializing
-    echo 'FLUSH PRIVILEGES;' > "$sqlFile"
 
     # Build our commands to initialize this database cluster
     /helpers/mysql-create-users.sh "${sqlFile}"
