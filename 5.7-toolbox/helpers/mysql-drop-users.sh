@@ -9,13 +9,18 @@ for user_var in ${!MYSQL_USER_*}; do
   user="${!user_var}"
 
   if [ -n "${user}" ]; then
-    user_name="${user%%:*}"
+    username="${user%%:*}"
 
-    echo "Dropping user \"${user_name}\"..." >&2
+    echo "Dropping user \"${username}\"..." >&2
 
-    if [ "$user_name" ]; then
-      echo "GRANT USAGE ON *.* TO \`$user_name\` ;" >> "$tempSqlFile"
-      echo "DROP USER \`$user_name\` ;" >> "$tempSqlFile"
+    if [ "$username" ]; then
+      count=$(mysql -s -e "SELECT COUNT(*) FROM mysql.user WHERE User='${username}';" --skip-column-names 2> /dev/null)
+
+      # If the user exists, then drop them
+      if [ $count -gt 0 ]; then
+        echo "GRANT USAGE ON *.* TO \`$username\` ;" >> "$tempSqlFile"
+        echo "DROP USER \`$username\` ;" >> "$tempSqlFile"
+      fi
     fi
   fi
 done
