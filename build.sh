@@ -13,3 +13,4 @@ cd 5.7-toolbox
 ./build.sh $NO_CACHE
 cd ..
 docker tag -f docker.rodeopartners.com/mysql:5.7-toolbox docker.rodeopartners.com/mysql:latest-toolbox
+docker tag -f docker.rodeopartners.com/mysql:5.7-toolbox docker.rodeopartners.com/mysql:toolbox
