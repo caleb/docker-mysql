@@ -5,7 +5,7 @@ cd 5.7
 cd ..
 docker push docker.rodeopartners.com/mysql:latest
 
-cd 5.7-toolbox
+cd toolbox
 ./push.sh
 cd ..
 docker push docker.rodeopartners.com/mysql:latest-toolbox
