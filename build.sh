@@ -7,6 +7,11 @@ cd 5.5
 ./build.sh $NO_CACHE
 cd ..
 
+echo "Building mysql:5.6"
+cd 5.6
+./build.sh $NO_CACHE
+cd ..
+
 echo "Building mysql:5.7"
 cd 5.7
 ./build.sh $NO_CACHE
