@@ -123,10 +123,7 @@ case "${1}" in
   run)
     initialize
 
-    sqlFile=/tmp/run.sql
-    /helpers/mysql-run.sh "${sqlFile}" "${2}"
-
-    mysql -s < "${sqlFile}"
+    /helpers/mysql-run.sh "${2}"
     ;;
 
   dump)
@@ -141,4 +138,4 @@ case "${1}" in
 
     exec "$@"
     ;;
-esac
+           esac
