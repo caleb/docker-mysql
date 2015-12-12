@@ -2,4 +2,4 @@
 
 NO_CACHE="${1:-false}"
 
-docker build --no-cache=$NO_CACHE -t docker.rodeopartners.com/mysql:5.6 .
+docker build --no-cache=$NO_CACHE -t caleb/mysql:5.6 .

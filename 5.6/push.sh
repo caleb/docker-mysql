@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-docker push docker.rodeopartners.com/mysql:5.6
+docker push caleb/mysql:5.6
