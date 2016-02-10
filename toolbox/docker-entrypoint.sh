@@ -106,16 +106,18 @@ case "${1}" in
 
     sqlFile=/tmp/reinitialize.sql
 
-    # Flush before initializing
+    # Drop existing databases/users
     echo 'FLUSH PRIVILEGES;' > "$sqlFile"
-
-    # Build our commands to initialize this database cluster
     /helpers/mysql-drop-users.sh "${sqlFile}"
     /helpers/mysql-drop-databases.sh "${sqlFile}"
+    # Run the deletions
+    mysql -s < "${sqlFile}"
+
+    # Create and import users/databases/data
+    echo 'FLUSH PRIVILEGES;' > "$sqlFile"
     /helpers/mysql-create-users.sh "${sqlFile}"
     /helpers/mysql-create-databases.sh "${sqlFile}"
     /helpers/mysql-import-data.sh "${sqlFile}"
-
     # Run the sql file
     mysql -s < "${sqlFile}"
     ;;
