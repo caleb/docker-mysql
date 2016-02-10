@@ -13,9 +13,9 @@ for database_var in ${!MYSQL_DATABASE_*}; do
 
     # escape the wildcard characters in the database name
     database_name_escaped=${database_name//_/\\_};
-    database_name_escaped=${database_name_escaped//*/\\*};
+    database_name_escaped=${database_name_escaped//\*/\\*};
     database_name_escaped=${database_name_escaped//%/\\%};
-    database_name_escaped=${database_name_escaped//?/\\?};
+    database_name_escaped=${database_name_escaped//\?/\\?};
 
     if mysqlshow "${database_name_escaped}" > /dev/null 2>&1; then
       echo "Dropping database \"${database_name}\"..." >&2
