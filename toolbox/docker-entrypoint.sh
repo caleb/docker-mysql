@@ -18,26 +18,28 @@ user=root
 password="${MYSQL_ENV_MYSQL_ROOT_PASSWORD}"
 EOF
 
-    # wait for mysql server to start (max 30 seconds)
-    timeout=30
-    while ! mysqladmin status >/dev/null 2>&1
-    do
-      timeout=$(($timeout - 1))
-      if [ $timeout -eq 0 ]; then
-        echo -e "\nCould not connect to database server. Aborting..." >&2
-        exit 1
-      fi
+    if [ "${require_mysql}" = "true" ]; then
+      # wait for mysql server to start (max 30 seconds)
+      timeout=30
+      while ! mysqladmin status >/dev/null 2>&1
+      do
+        timeout=$((timeout - 1))
+        if [ $timeout -eq 0 ]; then
+          echo -e "\nCould not connect to database server. Aborting..." >&2
+          exit 1
+        fi
 
-      if [ $timeout -eq 25 ]; then
-        echo "Waiting for database server to accept connections..." >&2
-      fi
+        if [ $timeout -eq 25 ]; then
+          echo "Waiting for database server to accept connections..." >&2
+        fi
 
-      if [ $timeout -lt 25 ]; then
-        echo -n "." >&2
-      fi
+        if [ $timeout -lt 25 ]; then
+          echo -n "." >&2
+        fi
 
-      sleep 1
-    done
+        sleep 1
+      done
+    fi
   fi
   #
   # Set up some common environment variables
